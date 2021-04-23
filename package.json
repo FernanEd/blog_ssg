@@ -1,0 +1,28 @@
+{
+  "name": "blog_ssg",
+  "version": "1.0.0",
+  "description": "Experimental Blog SSG from MD files. No frameworks.",
+  "main": "index.js",
+  "scripts": {
+    "build": "tsc && node scripts/build/index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/FernanEd/blog_ssg.git"
+  },
+  "keywords": [],
+  "author": "Fernando_Ed <fernaned.bm@gmail.com>",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/FernanEd/blog_ssg/issues"
+  },
+  "homepage": "https://github.com/FernanEd/blog_ssg#readme",
+  "dependencies": {
+    "@types/node": "^7.0.5",
+    "markdown-it": "^12.0.6"
+  },
+  "devDependencies": {
+    "@types/markdown-it": "^12.0.1"
+  }
+}
