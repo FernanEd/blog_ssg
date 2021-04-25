@@ -1,0 +1,260 @@
+:root {
+  --primary: #38c;
+  --secondary: #999999;
+  --success: #3b8;
+  --danger: #c38;
+  --warning: #da3;
+  --link: #3cc;
+  --light: #fff;
+  --dark: #333;
+  --disabled: #aaa;
+
+  --shadow-sm: 0px 0px 3px 1px rgba(0, 0, 0, 0.2);
+  --shadow-md: 0px 0px 7px 1px rgba(0, 0, 0, 0.3);
+  --shadow-lg: 0px 0px 10px 1px rgba(0, 0, 0, 0.4);
+}
+
+body[data-theme="light"] {
+  --text: #333;
+  --bg: #f8f8f8;
+  --bg2: #eee;
+  --bg3: #ccc;
+}
+
+body[data-theme="dark"] {
+  --text: #fff;
+  --bg: #444;
+  --bg2: #333;
+  --bg3: #222;
+}
+
+body {
+  margin: 0;
+  /* display: flex;
+  flex-direction: column;
+  justify-content: center;
+  background-color: var(--bg2);
+  min-height: 100vh; */
+  background-color: var(--bg);
+  color: var(--text);
+}
+
+.btn {
+  border-radius: 0.25rem;
+  font-size: 1rem;
+  padding: 0.25rem 0.5rem;
+  border: 0;
+  text-align: center;
+  cursor: pointer;
+
+  box-shadow: var(--shadow-sm);
+  transition: filter 0.3s ease;
+}
+
+.btn:hover {
+  filter: brightness(1.2);
+}
+
+.btn-dark {
+  background-color: var(--dark);
+  color: var(--light);
+}
+
+.btn-light {
+  background-color: var(--light);
+  color: var(--dark);
+}
+
+.btn-primary {
+  background-color: var(--primary);
+  color: var(--light);
+}
+
+.btn-secondary {
+  background-color: var(--secondary);
+  color: var(--light);
+}
+
+.btn-success {
+  background-color: var(--success);
+  color: var(--light);
+}
+
+.btn-warning {
+  background-color: var(--warning);
+  color: var(--dark);
+}
+
+.btn-danger {
+  background-color: var(--danger);
+  color: var(--light);
+}
+
+.btn-disabled {
+  cursor: unset;
+  background-color: transparent;
+  border: 1px solid var(--disabled);
+  color: var(--disabled);
+  box-shadow: none;
+}
+
+.btn-disabled:hover {
+  filter: none;
+}
+
+.btn-sm {
+  font-size: 0.8rem;
+}
+
+.btn-lg {
+  font-size: 1.2rem;
+}
+
+.btn-full {
+  width: 100%;
+}
+
+.btn-icon {
+  width: 2rem;
+  height: 2rem;
+  padding: 0.25rem;
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+}
+
+a {
+  text-decoration: none;
+  color: var(--link);
+  cursor: pointer;
+  transition: filter 0.3s ease;
+}
+
+a:hover {
+  filter: brightness(1.2);
+  text-decoration: underline;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  font-family: "Arial";
+}
+
+#main-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  background-color: var(--primary);
+  color: var(--light);
+
+  /* This is so the total width is 80% */
+  padding: 0.5rem 15%;
+  box-shadow: var(--shadow-md);
+}
+
+#main-header nav {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+#main-header nav ul {
+  list-style: none;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+#logo a {
+  color: var(--light);
+}
+
+#logo a:hover {
+  filter: brightness(0.8);
+  text-decoration: none;
+}
+
+#main-content {
+  padding: 0 15%;
+  color: var(--text);
+}
+
+#main-footer {
+  background-color: var(--dark);
+  color: var(--light);
+  padding: 1rem;
+  text-align: center;
+  border-top: 1px solid var(--disabled);
+
+  margin: auto 0 0;
+}
+
+.page-title {
+  margin: 1rem 0;
+  text-align: center;
+}
+
+.form {
+  border: 0;
+  border-radius: 0.5rem;
+  padding: 1rem;
+  background-color: var(--bg);
+  box-shadow: var(--shadow-md);
+
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 1rem;
+}
+
+.container {
+  border: 0;
+  border-radius: 0.5rem;
+  padding: 1rem;
+  background-color: var(--bg);
+  box-shadow: var(--shadow-md);
+}
+
+.container-sm {
+  margin: 2rem auto;
+  max-width: 570px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.form-group input,
+.form-group textarea {
+  background: none;
+  padding: 0.5rem;
+  border: 1px solid var(--disabled);
+  border-radius: 0.25rem;
+  color: var(--text);
+  font-size: 1rem;
+}
+
+.form-group input:focus {
+  border: 1px solid var(--primary);
+}
+
+.error-msg {
+  margin: 0.5rem 0;
+  color: var(--danger);
+}
+
+@media (max-width: 678px) {
+  #main-header {
+    flex-direction: column;
+    padding: 0.5rem;
+  }
+
+  #main-content {
+    padding: 0.25rem;
+  }
+}
