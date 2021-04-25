@@ -1,9 +1,9 @@
 ---
-Date: 23/04/2021
-Author: Fernando Ed
-Keywords: [joder, como estas, eo]
-Title: First post
-Description: My firstpost
+date: 23/04/2021
+author: Fernando Ed
+keywords: joder, como estas, eo
+title: First post
+description: My firstpost
 ---
 
 # Hello

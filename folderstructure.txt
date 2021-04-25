@@ -1,8 +1,8 @@
 site 
   index.html 
   assets 
-  icons 
-  images 
+    icons 
+    images 
   scripts 
     ... 
   stylesheets 

@@ -1,6 +1,11 @@
 import MarkdownIt from "markdown-it";
 import * as fs from "fs";
 import * as path from "path";
+import {
+  createPublicFiles,
+  createDirectories,
+  recursiveDeleteDirForce,
+} from "./folderStructure";
 
 const md = new MarkdownIt();
 
@@ -24,6 +29,8 @@ const md = new MarkdownIt();
 //     htmlFile
 //   );
 // });
+
+console.log("Making build...");
 
 const LAYOUT_DIR_PATH = path.join(__dirname, "../../layout");
 const POSTS_DIR_PATH = path.join(__dirname, "../../posts");
@@ -53,25 +60,13 @@ const OUTPUT_ASSETS_DIR_PATH = path.join(OUTPUT_INDEX_DIR_PATH, "assets");
 const OUTPUT_SCRIPTS_DIR_PATH = path.join(OUTPUT_INDEX_DIR_PATH, "stylesheets");
 const OUTPUT_STYLES_DIR_PATH = path.join(OUTPUT_INDEX_DIR_PATH, "scripts");
 
-const createDirectories = (directories: string[]): void => {
-  for (let dir of directories) {
-    if (fs.existsSync(dir) === false) {
-      fs.mkdirSync(dir);
-    }
-  }
-};
+const fillLayout = (layoutStr: string) =>
+  layoutStr.replace("%__PUBLIC__%", OUTPUT_INDEX_DIR_PATH);
 
-createDirectories([
-  OUTPUT_INDEX_DIR_PATH,
-  OUTPUT_ASSETS_DIR_PATH,
-  OUTPUT_SCRIPTS_DIR_PATH,
-  OUTPUT_STYLES_DIR_PATH,
-]);
+const createLayoutFiles = (directory1: string, directory2: string) => {
+  const dirContents = fs.readdirSync(directory1);
 
-const createAllFiles = (directory1: string, directory2: string) => {
-  const dir = fs.readdirSync(directory1);
-
-  for (let elementName of dir) {
+  for (let elementName of dirContents) {
     const elementPath = path.join(directory1, elementName);
     const outputPath = path.join(directory2, elementName);
     const element = fs.lstatSync(elementPath);
@@ -80,11 +75,23 @@ const createAllFiles = (directory1: string, directory2: string) => {
       if (fs.existsSync(outputPath) === false) {
         fs.mkdirSync(outputPath);
       }
-      createAllFiles(elementPath, outputPath);
+      createLayoutFiles(elementPath, outputPath);
     } else {
-      fs.createReadStream(elementPath).pipe(fs.createWriteStream(outputPath));
+      if (/\.html$/.test(elementName)) {
+        const htmlStr = fs.readFileSync(elementPath, "utf8");
+        const newHTMLStr = fillLayout(htmlStr);
+        fs.writeFileSync(outputPath, newHTMLStr);
+      }
     }
   }
 };
 
-createAllFiles(PUBLIC_DIR_PATH, OUTPUT_INDEX_DIR_PATH);
+if (fs.existsSync(OUTPUT_INDEX_DIR_PATH)) {
+  recursiveDeleteDirForce(OUTPUT_INDEX_DIR_PATH);
+}
+
+createDirectories([OUTPUT_INDEX_DIR_PATH]);
+createPublicFiles(PUBLIC_DIR_PATH, OUTPUT_INDEX_DIR_PATH);
+createLayoutFiles(LAYOUT_DIR_PATH, OUTPUT_INDEX_DIR_PATH);
+
+console.log("Build ended.");
