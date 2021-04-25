@@ -39,18 +39,18 @@ const OUTPUT_SCRIPTS_DIR_PATH = path.join(OUTPUT_INDEX_DIR_PATH, "stylesheets");
 const OUTPUT_STYLES_DIR_PATH = path.join(OUTPUT_INDEX_DIR_PATH, "scripts");
 const OUTPUT_POSTS_DIR_PATH = path.join(OUTPUT_INDEX_DIR_PATH, "posts");
 
-const parseHTML = (layoutStr: string) => {
-  layoutStr = layoutStr.replace(
+const parseHTML = (htmlStr: string, htmlPath: string) => {
+  htmlStr = htmlStr.replace(
     new RegExp("%__PUBLIC__%", "g"),
-    OUTPUT_INDEX_DIR_PATH
+    path.relative(htmlPath, OUTPUT_INDEX_DIR_PATH) || "."
   );
 
-  layoutStr = layoutStr.replace(
+  htmlStr = htmlStr.replace(
     new RegExp("%__POSTS__%", "g"),
-    OUTPUT_POSTS_DIR_PATH
+    path.relative(htmlPath, OUTPUT_POSTS_DIR_PATH)
   );
 
-  return layoutStr;
+  return htmlStr;
 };
 
 const createLayoutFiles = (directory1: string, directory2: string) => {
@@ -69,7 +69,7 @@ const createLayoutFiles = (directory1: string, directory2: string) => {
     } else {
       if (/\.html$/.test(elementName)) {
         const htmlStr = fs.readFileSync(elementPath, "utf8");
-        const newHTMLStr = parseHTML(htmlStr);
+        const newHTMLStr = parseHTML(htmlStr, directory2);
         fs.writeFileSync(outputPath, newHTMLStr);
       }
     }

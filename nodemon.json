@@ -1,0 +1,4 @@
+{
+  "watch": ["./layout", "./public", "./posts"],
+  "ext": "js,css,html,jpg,png,scss,ico"
+}
