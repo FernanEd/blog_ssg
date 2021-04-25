@@ -47,46 +47,64 @@ const OUTPUT_DIR_PATH = path.join(__dirname, "../../site");
 
 interface IPost extends Object {
   content: string;
-  meta: {
+  meta?: {
     author?: string;
-    date: Date;
-    keywords: string[];
-    title: string;
-    description: string;
+    date?: string;
+    keywords?: string[];
+    title?: string;
+    description?: string;
   };
 }
 
-function extractMetadata(mdString: string): any {
-  const MD_STRING = mdString.trim();
-  let startMetadata =
-    MD_STRING[0] === "-" && MD_STRING[1] === "-" && MD_STRING[2] === "-";
+function extractMetadata(mdStr: string): IPost | undefined {
+  const MD_STRING = mdStr.trim().split("---");
+  const [_, metadataStr, contentStr] = MD_STRING;
 
-  if (startMetadata) {
-    let i = 3; //i starts after the --- metadata start
-    let endMetadata = 0;
-    let metadataStr = "";
-
-    while (endMetadata < 3 && i < MD_STRING.length - 1) {
-      if (MD_STRING[i] === "-") {
-        endMetadata += 1;
-        continue;
-      }
-      metadataStr += MD_STRING[i];
-      i += 1;
-    }
-
-    const metadata = metadataStr
-      .trim()
-      .split("\n")
-      .map((data) => data.split(":"));
-
-    console.log(metadata);
-  } else {
-    return new Error("Invalid metadata format, use YAML");
+  if (MD_STRING.length === 1) {
+    return {
+      content: _,
+    };
   }
+
+  if (MD_STRING.length !== 3) {
+    return;
+  }
+
+  const metadataPairs = metadataStr
+    .trim()
+    .split("\n")
+    .map((data) => data.split(":"));
+
+  type a = {
+    [key: string]: string | string[];
+  };
+
+  const metadata: a = {
+    author: "",
+    date: "",
+    keywords: [""],
+    title: "",
+    description: "",
+  };
+
+  for (let [prop, val] of metadataPairs) {
+    if (metadata.hasOwnProperty(prop)) {
+      if (prop === "keywords") {
+        metadata[prop] = val.trim().split(", ");
+      } else {
+        metadata[prop] = val.trim();
+      }
+    }
+  }
+
+  return {
+    content: contentStr,
+    meta: metadata,
+  };
 }
 
-const TESTMD = `
+console.log(
+  extractMetadata(`
 ---
 date: 23/04/2021
 author: Fernando Ed
@@ -103,27 +121,30 @@ This is a sample post 😳
 
 - o
 
-`;
+`)
+);
 
-extractMetadata(TESTMD);
-
-function fillTemplate(templateString: string, templateMD: IPost): string {
+function fillTemplate(templateString: string, postMD: IPost): string {
   const NEW_TEMPLATE = templateString;
-  NEW_TEMPLATE.replace(
-    "{% meta.author %}",
-    templateMD.meta.author || "Anonymous"
-  );
-  NEW_TEMPLATE.replace(
-    "{% meta.date %}",
-    templateMD.meta.date.toLocaleDateString()
-  );
-  NEW_TEMPLATE.replace(
-    "{% meta.keywords %}",
-    templateMD.meta.keywords.join(",")
-  );
-  NEW_TEMPLATE.replace("{% meta.title %}", templateMD.meta.title);
-  NEW_TEMPLATE.replace("{% meta.description %}", templateMD.meta.description);
-  NEW_TEMPLATE.replace("{% content %}", templateMD.content);
+  NEW_TEMPLATE.replace("{% content %}", postMD.content);
+
+  if (postMD.meta) {
+    NEW_TEMPLATE.replace(
+      "{% meta.author %}",
+      postMD.meta.author || "Anonymous"
+    );
+    NEW_TEMPLATE.replace("{% meta.date %}", postMD.meta.date || "Unkown");
+    NEW_TEMPLATE.replace(
+      "{% meta.keywords %}",
+      postMD.meta.keywords ? postMD.meta.keywords.join(",") : ""
+    );
+    NEW_TEMPLATE.replace("{% meta.title %}", postMD.meta.title || "");
+    NEW_TEMPLATE.replace(
+      "{% meta.description %}",
+      postMD.meta.description || ""
+    );
+  }
+
   return NEW_TEMPLATE;
 }
 
