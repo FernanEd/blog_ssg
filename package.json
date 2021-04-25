@@ -6,7 +6,7 @@
   "scripts": {
     "start": "node ssg/build/index.js",
     "build": "tsc && node ssg/build/index.js",
-    "dev": "browser-sync start --server --serveStatic ./site --files 'site/*' ",
+    "dev": "tsc && nodemon ssg/build/index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -21,9 +21,11 @@
   },
   "homepage": "https://github.com/FernanEd/blog_ssg#readme",
   "dependencies": {
+    "livereload": "^0.9.3",
     "markdown-it": "^12.0.6"
   },
   "devDependencies": {
+    "@types/livereload": "^0.9.0",
     "@types/markdown-it": "^12.0.1",
     "@types/node": "^7.0.5",
     "nodemon": "^2.0.7",
