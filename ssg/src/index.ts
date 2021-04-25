@@ -1,4 +1,3 @@
-import MarkdownIt from "markdown-it";
 import * as fs from "fs";
 import * as path from "path";
 import {
@@ -6,30 +5,9 @@ import {
   createDirectories,
   recursiveDeleteDirForce,
 } from "./folderStructure";
+import { fillMDTemplate, parseMDFile } from "./postParsers";
 
-const md = new MarkdownIt();
-
-// const templatePath = path.join(__dirname, "../../layout/template.html");
-// const htmlTemplate = fs.readFileSync(templatePath, "utf8");
-
-// const postsPath = path.join(__dirname, "../../posts");
-// const postFolder = fs.readdirSync(postsPath);
-
-// const output = path.join(__dirname, "../../site");
-
-// const getTemplateHtml = (content: string) =>
-//   htmlTemplate.replace("{% content %}", content);
-
-// postFolder.forEach((postFileName) => {
-//   const file = fs.readFileSync(path.join(postsPath, postFileName), "utf8");
-//   const htmlContent = md.render(file);
-//   const htmlFile = getTemplateHtml(htmlContent);
-//   fs.writeFileSync(
-//     path.join(output, postFileName.replace(".md", ".html")),
-//     htmlFile
-//   );
-// });
-
+console.time("Build ended in");
 console.log("Making build...");
 
 const LAYOUT_DIR_PATH = path.join(__dirname, "../../layout");
@@ -59,9 +37,21 @@ const OUTPUT_INDEX_DIR_PATH = path.join(__dirname, "../../site");
 const OUTPUT_ASSETS_DIR_PATH = path.join(OUTPUT_INDEX_DIR_PATH, "assets");
 const OUTPUT_SCRIPTS_DIR_PATH = path.join(OUTPUT_INDEX_DIR_PATH, "stylesheets");
 const OUTPUT_STYLES_DIR_PATH = path.join(OUTPUT_INDEX_DIR_PATH, "scripts");
+const OUTPUT_POSTS_DIR_PATH = path.join(OUTPUT_INDEX_DIR_PATH, "posts");
 
-const fillLayout = (layoutStr: string) =>
-  layoutStr.replace("%__PUBLIC__%", OUTPUT_INDEX_DIR_PATH);
+const parseHTML = (layoutStr: string) => {
+  layoutStr = layoutStr.replace(
+    new RegExp("%__PUBLIC__%", "g"),
+    OUTPUT_INDEX_DIR_PATH
+  );
+
+  layoutStr = layoutStr.replace(
+    new RegExp("%__POSTS__%", "g"),
+    OUTPUT_POSTS_DIR_PATH
+  );
+
+  return layoutStr;
+};
 
 const createLayoutFiles = (directory1: string, directory2: string) => {
   const dirContents = fs.readdirSync(directory1);
@@ -79,8 +69,34 @@ const createLayoutFiles = (directory1: string, directory2: string) => {
     } else {
       if (/\.html$/.test(elementName)) {
         const htmlStr = fs.readFileSync(elementPath, "utf8");
-        const newHTMLStr = fillLayout(htmlStr);
+        const newHTMLStr = parseHTML(htmlStr);
         fs.writeFileSync(outputPath, newHTMLStr);
+      }
+    }
+  }
+};
+
+const createPostsFiles = (directory1: string, directory2: string) => {
+  const dirContents = fs.readdirSync(directory1);
+
+  for (let elementName of dirContents) {
+    const elementPath = path.join(directory1, elementName);
+    const outputPath = path.join(directory2, elementName);
+    const element = fs.lstatSync(elementPath);
+
+    if (element.isDirectory()) {
+      if (fs.existsSync(outputPath) === false) {
+        fs.mkdirSync(outputPath);
+      }
+      createPostsFiles(elementPath, outputPath);
+    } else {
+      if (/\.md$/.test(elementName)) {
+        const mdStr = fs.readFileSync(elementPath, "utf8");
+        const mdObj = parseMDFile(mdStr);
+        if (mdObj) {
+          const postStr = fillMDTemplate(TEMPLATE_HTML_STRING, mdObj);
+          fs.writeFileSync(outputPath.replace(".md", ".html"), postStr);
+        }
       }
     }
   }
@@ -90,8 +106,9 @@ if (fs.existsSync(OUTPUT_INDEX_DIR_PATH)) {
   recursiveDeleteDirForce(OUTPUT_INDEX_DIR_PATH);
 }
 
-createDirectories([OUTPUT_INDEX_DIR_PATH]);
+createDirectories([OUTPUT_INDEX_DIR_PATH, OUTPUT_POSTS_DIR_PATH]);
 createPublicFiles(PUBLIC_DIR_PATH, OUTPUT_INDEX_DIR_PATH);
 createLayoutFiles(LAYOUT_DIR_PATH, OUTPUT_INDEX_DIR_PATH);
+createPostsFiles(POSTS_DIR_PATH, path.join(OUTPUT_INDEX_DIR_PATH, "posts"));
 
-console.log("Build ended.");
+console.timeEnd("Build ended in");

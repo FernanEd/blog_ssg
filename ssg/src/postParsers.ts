@@ -1,3 +1,6 @@
+import MarkdownIt from "markdown-it";
+const md = new MarkdownIt();
+
 export interface IPost {
   content: string;
   meta?: {
@@ -15,7 +18,7 @@ export function parseMDFile(mdStr: string): IPost | undefined {
 
   if (MD_STRING.length === 1) {
     return {
-      content: _,
+      content: md.render(_),
     };
   }
 
@@ -51,28 +54,37 @@ export function parseMDFile(mdStr: string): IPost | undefined {
   }
 
   return {
-    content: contentStr,
+    content: md.render(contentStr),
     meta: metadata,
   };
 }
 
 export function fillMDTemplate(templateString: string, postMD: IPost): string {
-  const NEW_TEMPLATE = templateString;
-  NEW_TEMPLATE.replace("{% content %}", postMD.content);
+  let NEW_TEMPLATE = templateString;
+  NEW_TEMPLATE = NEW_TEMPLATE.replace(
+    new RegExp("{% content %}", "g"),
+    postMD.content
+  );
 
   if (postMD.meta) {
-    NEW_TEMPLATE.replace(
-      "{% meta.author %}",
+    NEW_TEMPLATE = NEW_TEMPLATE.replace(
+      new RegExp("{% meta.author %}", "g"),
       postMD.meta.author || "Anonymous"
     );
-    NEW_TEMPLATE.replace("{% meta.date %}", postMD.meta.date || "Unkown");
-    NEW_TEMPLATE.replace(
-      "{% meta.keywords %}",
+    NEW_TEMPLATE = NEW_TEMPLATE.replace(
+      new RegExp("{% meta.date %}", "g"),
+      postMD.meta.date || "Unkown"
+    );
+    NEW_TEMPLATE = NEW_TEMPLATE.replace(
+      new RegExp("{% meta.keywords %}", "g"),
       postMD.meta.keywords ? postMD.meta.keywords.join(",") : ""
     );
-    NEW_TEMPLATE.replace("{% meta.title %}", postMD.meta.title || "");
-    NEW_TEMPLATE.replace(
-      "{% meta.description %}",
+    NEW_TEMPLATE = NEW_TEMPLATE.replace(
+      new RegExp("{% meta.title %}", "g"),
+      postMD.meta.title || ""
+    );
+    NEW_TEMPLATE = NEW_TEMPLATE.replace(
+      new RegExp("{% meta.description %}", "g"),
       postMD.meta.description || ""
     );
   }
