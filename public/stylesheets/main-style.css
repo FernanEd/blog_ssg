@@ -30,11 +30,11 @@ body[data-theme="dark"] {
 
 body {
   margin: 0;
-  /* display: flex;
+  display: flex;
   flex-direction: column;
   justify-content: center;
   background-color: var(--bg2);
-  min-height: 100vh; */
+  min-height: 100vh;
   background-color: var(--bg);
   color: var(--text);
 }
