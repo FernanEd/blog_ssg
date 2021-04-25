@@ -40,3 +40,6 @@ postFolder.forEach(function (postFileName) {
     var htmlFile = getTemplateHtml(htmlContent);
     fs.writeFileSync(path.join(output, postFileName.replace(".md", ".html")), htmlFile);
 });
+var LAYOUT_DIR_PATH = path.join(__dirname, "../../layout");
+var POSTS_DIR_PATH = path.join(__dirname, "../../posts");
+var PUBLIC_DIR_PATH = path.join(__dirname, "../../public");
