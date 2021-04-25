@@ -1,0 +1,11 @@
+site 
+  index.html 
+  assets 
+  icons 
+  images 
+  scripts 
+    ... 
+  stylesheets 
+    ... 
+  posts 
+    ...

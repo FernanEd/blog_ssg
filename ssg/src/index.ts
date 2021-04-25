@@ -27,11 +27,16 @@ const md = new MarkdownIt();
 
 const LAYOUT_DIR_PATH = path.join(__dirname, "../../layout");
 const POSTS_DIR_PATH = path.join(__dirname, "../../posts");
-const PUBLIC_DIR_PATH = path.join(__dirname, "../../public");
 const TEMPLATE_DIR_PATH = path.join(__dirname, "../../templates");
+
+const PUBLIC_DIR_PATH = path.join(__dirname, "../../public");
+const ASSETS_DIR_PATH = path.join(PUBLIC_DIR_PATH, "assets");
+const SCRIPTS_DIR_PATH = path.join(PUBLIC_DIR_PATH, "stylesheets");
+const STYLES_DIR_PATH = path.join(PUBLIC_DIR_PATH, "scripts");
 
 const TEMPLATE_FILENAME = fs.readdirSync(TEMPLATE_DIR_PATH)[0];
 const INDEX_FILENAME = fs.readdirSync(TEMPLATE_DIR_PATH)[0];
+const POSTS_FILENAMES = fs.readdirSync(POSTS_DIR_PATH);
 
 const TEMPLATE_HTML_STRING = fs.readFileSync(
   path.join(TEMPLATE_DIR_PATH, TEMPLATE_FILENAME),
@@ -43,109 +48,43 @@ const INDEX_HTML_STRING = fs.readFileSync(
   "utf8"
 );
 
-const OUTPUT_DIR_PATH = path.join(__dirname, "../../site");
+const OUTPUT_INDEX_DIR_PATH = path.join(__dirname, "../../site");
+const OUTPUT_ASSETS_DIR_PATH = path.join(OUTPUT_INDEX_DIR_PATH, "assets");
+const OUTPUT_SCRIPTS_DIR_PATH = path.join(OUTPUT_INDEX_DIR_PATH, "stylesheets");
+const OUTPUT_STYLES_DIR_PATH = path.join(OUTPUT_INDEX_DIR_PATH, "scripts");
 
-interface IPost extends Object {
-  content: string;
-  meta?: {
-    author?: string;
-    date?: string;
-    keywords?: string[];
-    title?: string;
-    description?: string;
-  };
-}
-
-function extractMetadata(mdStr: string): IPost | undefined {
-  const MD_STRING = mdStr.trim().split("---");
-  const [_, metadataStr, contentStr] = MD_STRING;
-
-  if (MD_STRING.length === 1) {
-    return {
-      content: _,
-    };
-  }
-
-  if (MD_STRING.length !== 3) {
-    return;
-  }
-
-  const metadataPairs = metadataStr
-    .trim()
-    .split("\n")
-    .map((data) => data.split(":"));
-
-  type a = {
-    [key: string]: string | string[];
-  };
-
-  const metadata: a = {
-    author: "",
-    date: "",
-    keywords: [""],
-    title: "",
-    description: "",
-  };
-
-  for (let [prop, val] of metadataPairs) {
-    if (metadata.hasOwnProperty(prop)) {
-      if (prop === "keywords") {
-        metadata[prop] = val.trim().split(", ");
-      } else {
-        metadata[prop] = val.trim();
-      }
+const createDirectories = (directories: string[]): void => {
+  for (let dir of directories) {
+    if (fs.existsSync(dir) === false) {
+      fs.mkdirSync(dir);
     }
   }
+};
 
-  return {
-    content: contentStr,
-    meta: metadata,
-  };
-}
+createDirectories([
+  OUTPUT_INDEX_DIR_PATH,
+  OUTPUT_ASSETS_DIR_PATH,
+  OUTPUT_SCRIPTS_DIR_PATH,
+  OUTPUT_STYLES_DIR_PATH,
+]);
 
-console.log(
-  extractMetadata(`
----
-date: 23/04/2021
-author: Fernando Ed
-keywords: joder, como estas, eo
-title: First post
-description: My firstpost
----
+const createAllFiles = (directory1: string, directory2: string) => {
+  const dir = fs.readdirSync(directory1);
 
-# Hello
+  for (let elementName of dir) {
+    const elementPath = path.join(directory1, elementName);
+    const outputPath = path.join(directory2, elementName);
+    const element = fs.lstatSync(elementPath);
 
-This is a sample post 😳
-
-## lmao
-
-- o
-
-`)
-);
-
-function fillTemplate(templateString: string, postMD: IPost): string {
-  const NEW_TEMPLATE = templateString;
-  NEW_TEMPLATE.replace("{% content %}", postMD.content);
-
-  if (postMD.meta) {
-    NEW_TEMPLATE.replace(
-      "{% meta.author %}",
-      postMD.meta.author || "Anonymous"
-    );
-    NEW_TEMPLATE.replace("{% meta.date %}", postMD.meta.date || "Unkown");
-    NEW_TEMPLATE.replace(
-      "{% meta.keywords %}",
-      postMD.meta.keywords ? postMD.meta.keywords.join(",") : ""
-    );
-    NEW_TEMPLATE.replace("{% meta.title %}", postMD.meta.title || "");
-    NEW_TEMPLATE.replace(
-      "{% meta.description %}",
-      postMD.meta.description || ""
-    );
+    if (element.isDirectory()) {
+      if (fs.existsSync(outputPath) === false) {
+        fs.mkdirSync(outputPath);
+      }
+      createAllFiles(elementPath, outputPath);
+    } else {
+      fs.createReadStream(elementPath).pipe(fs.createWriteStream(outputPath));
+    }
   }
+};
 
-  return NEW_TEMPLATE;
-}
-
-// console.log(parseTemplates())
+createAllFiles(PUBLIC_DIR_PATH, OUTPUT_INDEX_DIR_PATH);
